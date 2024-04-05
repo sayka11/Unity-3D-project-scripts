@@ -1,0 +1,29 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CameraFollow : MonoBehaviour
+{
+
+   public GameObject Player;
+   public float Smooth = 2f;
+   //плавность камеры следования за персонажем
+   private void FixedUpdate(){
+    Vector3 PointPlayer;
+    //Вектор3 это невидимая точка на экране, в которую мы загружаем 
+    //позицию игрока
+      PointPlayer.x = Player.transform.position.x;
+      PointPlayer.y = transform.position.y;
+      PointPlayer.z = transform.position.z;
+      transform.position = Vector3.Lerp(transform.position, PointPlayer, Smooth*Time.fixedDeltaTime);
+       //откуда куда и за какое время( указывается позиция игрока, время за которое камера должна достичь нашего игрока)
+
+   }
+
+   //Разница между функциями 'Update' и FixedUpdate 
+   //заключается в частоте их запуска. Функция 'Update' 
+   //запускается один раз за кадр, а FixedUpdate выполняется
+   // с постоянной скоростью, контролируемой значением 
+   //"Fixed Timestamp" в 'Project Settings' -> 'Time'.
+}
+
