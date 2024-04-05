@@ -1,0 +1,14 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MovementScript : MonoBehaviour
+{
+   public Rigidbody rb;
+   public float MovementSpeed = 1000f;
+   private void FixedUpdate()
+   {
+     rb.AddForce(MovementSpeed*Time.fixedDeltaTime,0,0);
+     //Дается толчек по кубу по координате х
+   }
+}
