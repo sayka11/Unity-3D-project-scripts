@@ -1,14 +1,40 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MovementScript : MonoBehaviour
 {
    public Rigidbody rb;
    public float MovementSpeed = 1000f;
+   public float SideWaysSpeed =10f;
+   public GameObject Platform;
+   private bool CanIRun = true;
+   //новая переменная для обозначения скорости передвижения влево или вправо
    private void FixedUpdate()
-   {
-     rb.AddForce(MovementSpeed*Time.fixedDeltaTime,0,0);
+   { 
+    if(CanIRun== true){
+     rb.AddForce(-MovementSpeed*Time.fixedDeltaTime,0,0);
      //Дается толчек по кубу по координате х
+
+     if(Input.GetKey("d")){
+        rb.AddForce(0,0,SideWaysSpeed*Time.deltaTime);
+     }
+     if(Input.GetKey("a")){
+        rb.AddForce(0,0,-SideWaysSpeed*Time.deltaTime);
+     }
+     
+    }
+
+     if(transform.position.y<Platform.transform.position.y)
+     {
+        SceneManager.LoadScene("Game");
+     }
    }
+private void OnCollisionEnter(Collision collision)
+{
+    if(collision.collider.CompareTag("Obstacle")){
+        CanIRun= false;
+    }
+}
 }
