@@ -1,22 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+//код для движения камеры за персонажем
 public class CameraFollow : MonoBehaviour
 {
-
    public GameObject Player;
-   public float Smooth = 2f;
-   //плавность камеры следования за персонажем
+   public Vector3 offset;
+   //изменение плавности на координаты, которые мы зададим нашей камере
    private void FixedUpdate(){
-    Vector3 PointPlayer;
-    //Вектор3 это невидимая точка на экране, в которую мы загружаем 
-    //позицию игрока
-      PointPlayer.x = Player.transform.position.x;
-      PointPlayer.y = transform.position.y;
-      PointPlayer.z = transform.position.z;
-      transform.position = Vector3.Lerp(transform.position, PointPlayer, Smooth*Time.fixedDeltaTime);
-       //откуда куда и за какое время( указывается позиция игрока, время за которое камера должна достичь нашего игрока)
+    transform.position = Player.transform.position + offset;
 
    }
 
