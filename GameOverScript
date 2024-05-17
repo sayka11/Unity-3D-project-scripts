@@ -24,7 +24,7 @@ public class GameOverScript : MonoBehaviour
             BestScore.GetComponent<Text>().text="Best:"+ PlayerPrefs.GetInt("BestScore").ToString();
             ScoreCounter.SetActive(false);
         }
-         CurrentScore.GetComponent<Text>().text="Current Result:"+ ScoreCounter.GetComponent<Text>().text;
+        
     }
 
 }
