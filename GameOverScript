@@ -1,0 +1,30 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.UI;
+
+public class GameOverScript : MonoBehaviour
+{   public GameObject ScoreCounter;
+    public GameObject BestScore;
+    public GameObject CurrentScore;
+    private int Score;
+   
+    void Start()
+    {
+        Score = int.Parse(ScoreCounter.GetComponent<Text>().text.ToString());
+        if(PlayerPrefs.HasKey("BestScore")){
+            if(PlayerPrefs.GetInt("BestScore")<Score){
+                PlayerPrefs.SetInt("BestScore",Score);
+            }
+            BestScore.GetComponent<Text>().text="Best:" + PlayerPrefs.GetInt("BestScore").ToString();
+        }
+        else{
+            PlayerPrefs.SetInt("BestScore", Score);
+            BestScore.GetComponent<Text>().text="Best:"+ PlayerPrefs.GetInt("BestScore").ToString();
+            ScoreCounter.SetActive(false);
+        }
+         CurrentScore.GetComponent<Text>().text="Current Result:"+ ScoreCounter.GetComponent<Text>().text;
+    }
+
+}
