@@ -1,19 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ScoreScript : MonoBehaviour
 {
-   public Transform player;
-   public Text ScoreText;
-   public GameObject GameOver;
+    public Text scoreText; // Ссылка на UI Text
+    private int score = 0; // Текущее значение счета
 
-  
-    void Update()
-    {   if(!GameOver.activeSelf){ 
-           ScoreText.text=Mathf.Abs(player.position.x).ToString("0");
+    private void Start()
+    {
+        // Инициализация текста
+        if (scoreText != null)
+        {
+            scoreText.text = "Time: " + score.ToString();
+        }
+        // Запуск корутины для увеличения счета каждую секунду
+        StartCoroutine(IncreaseScoreOverTime());
     }
-        
+
+    private System.Collections.IEnumerator IncreaseScoreOverTime()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1f); // Ждать 1 секунду
+            score += 1; // Увеличение счета
+            UpdateScoreText(); // Обновление текста
+        }
+    }
+
+    private void UpdateScoreText()
+    {
+        if (scoreText != null)
+        {
+            scoreText.text = "Score: " + score.ToString();
+        }
     }
 }
