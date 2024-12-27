@@ -3,16 +3,21 @@ using UnityEngine.UI;
 
 public class ScoreScript : MonoBehaviour
 {
-    public Text scoreText; // Ссылка на UI Text
-    private int score = 0; // Текущее значение счета
+    public Text scoreText;      // Текст для текущего счета
+    public Text bestScoreText;  // Текст для лучшего счета
+
+    private int score = 0;      // Текущее значение счета
+    private int bestScore = 0;  // Лучший результат
 
     private void Start()
     {
-        // Инициализация текста
-        if (scoreText != null)
-        {
-            scoreText.text = "Time: " + score.ToString();
-        }
+        // Загрузка лучшего результата из PlayerPrefs
+        bestScore = PlayerPrefs.GetInt("BestScore", 0);
+
+        // Обновляем текстовые поля
+        UpdateScoreText();
+        UpdateBestScoreText();
+
         // Запуск корутины для увеличения счета каждую секунду
         StartCoroutine(IncreaseScoreOverTime());
     }
@@ -22,8 +27,19 @@ public class ScoreScript : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(1f); // Ждать 1 секунду
-            score += 1; // Увеличение счета
-            UpdateScoreText(); // Обновление текста
+            score += 1;                         // Увеличение счета
+            UpdateScoreText();                  // Обновление текста
+
+            // Проверка, является ли текущий счет лучшим
+            if (score > bestScore)
+            {
+                bestScore = score;
+                UpdateBestScoreText();
+
+                // Сохраняем лучший результат в PlayerPrefs
+                PlayerPrefs.SetInt("BestScore", bestScore);
+                PlayerPrefs.Save();
+            }
         }
     }
 
@@ -33,5 +49,28 @@ public class ScoreScript : MonoBehaviour
         {
             scoreText.text = "Score: " + score.ToString();
         }
+    }
+
+    private void UpdateBestScoreText()
+    {
+        if (bestScoreText != null)
+        {
+            bestScoreText.text = "Best Time: " + bestScore.ToString();
+        }
+    }
+
+    public void ResetScore()
+    {
+        // Сбрасываем текущий счет
+        score = 0;
+        UpdateScoreText();
+    }
+
+    public void ResetBestScore()
+    {
+        // Сбрасываем лучший результат
+        bestScore = 0;
+        PlayerPrefs.DeleteKey("BestScore");
+        UpdateBestScoreText();
     }
 }
