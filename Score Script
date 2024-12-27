@@ -3,15 +3,27 @@ using UnityEngine.UI;
 
 public class ScoreScript : MonoBehaviour
 {
-    public Text scoreText;      // Текст для текущего счета
-    public Text bestScoreText;  // Текст для лучшего счета
+    public Text scoreText;       // Текст для текущего счета
+    public Text bestScoreText;   // Текст для лучшего счета
+    public GameObject Player;    // Игрок
+    public GameObject Platform;  // Платформа
 
-    private int score = 0;      // Текущее значение счета
-    private int bestScore = 0;  // Лучший результат
+    private int score = 0;       // Текущее значение счета
+    private int bestScore = 0;   // Лучший результат
+    private bool isGameRunning = true; // Флаг состояния игры
+
+    private Coroutine scoreCoroutine; // Ссылка на корутину
 
     private void Start()
     {
-        // Загрузка лучшего результата из PlayerPrefs
+        // Проверяем, указаны ли ссылки на игрока и платформу
+        if (Player == null || Platform == null)
+        {
+            Debug.LogError("Необходимо привязать объекты Player и Platform в инспекторе!");
+            return;
+        }
+
+        // Загружаем лучший результат из PlayerPrefs
         bestScore = PlayerPrefs.GetInt("BestScore", 0);
 
         // Обновляем текстовые поля
@@ -19,24 +31,33 @@ public class ScoreScript : MonoBehaviour
         UpdateBestScoreText();
 
         // Запуск корутины для увеличения счета каждую секунду
-        StartCoroutine(IncreaseScoreOverTime());
+        scoreCoroutine = StartCoroutine(IncreaseScoreOverTime());
+    }
+
+    private void Update()
+    {
+        // Проверяем, находится ли игрок ниже платформы
+        if (isGameRunning && Player.transform.position.y < Platform.transform.position.y)
+        {
+            StopScore(); // Останавливаем счет
+        }
     }
 
     private System.Collections.IEnumerator IncreaseScoreOverTime()
     {
-        while (true)
+        while (isGameRunning) // Проверяем, работает ли игра
         {
-            yield return new WaitForSeconds(1f); // Ждать 1 секунду
-            score += 1;                         // Увеличение счета
-            UpdateScoreText();                  // Обновление текста
+            yield return new WaitForSeconds(1f); // Ждем 1 секунду
+            score += 1;                          // Увеличиваем счет
+            UpdateScoreText();                   // Обновляем текст
 
-            // Проверка, является ли текущий счет лучшим
+            // Проверяем, стал ли текущий счет новым рекордом
             if (score > bestScore)
             {
                 bestScore = score;
                 UpdateBestScoreText();
 
-                // Сохраняем лучший результат в PlayerPrefs
+                // Сохраняем новый лучший результат в PlayerPrefs
                 PlayerPrefs.SetInt("BestScore", bestScore);
                 PlayerPrefs.Save();
             }
@@ -55,8 +76,20 @@ public class ScoreScript : MonoBehaviour
     {
         if (bestScoreText != null)
         {
-            bestScoreText.text = "Best Time: " + bestScore.ToString();
+            bestScoreText.text = "Best Score: " + bestScore.ToString();
         }
+    }
+
+    public void StopScore()
+    {
+        isGameRunning = false; // Останавливаем обновление счета
+        if (scoreCoroutine != null)
+        {
+            StopCoroutine(scoreCoroutine); // Останавливаем корутину
+            scoreCoroutine = null;         // Убираем ссылку для безопасности
+        }
+
+        Debug.Log("Счет остановлен.");
     }
 
     public void ResetScore()
