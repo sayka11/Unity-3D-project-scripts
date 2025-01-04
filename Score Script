@@ -4,19 +4,18 @@ using UnityEngine.UI;
 public class ScoreScript : MonoBehaviour
 {
     public Text scoreText;       // Текст для текущего счета
-    public Text bestScoreText;   // Текст для лучшего счета
+    public Text bestScoreText;   // Текст для лучшего результата
     public GameObject Player;    // Игрок
     public GameObject Platform;  // Платформа
 
     private int score = 0;       // Текущее значение счета
-    private int bestScore = 0;   // Лучший результат
+    private int bestScore = 0;   // Лучший результат (минимальное время)
     private bool isGameRunning = true; // Флаг состояния игры
 
     private Coroutine scoreCoroutine; // Ссылка на корутину
 
     private void Start()
     {
-        // Проверяем, указаны ли ссылки на игрока и платформу
         if (Player == null || Platform == null)
         {
             Debug.LogError("Необходимо привязать объекты Player и Platform в инспекторе!");
@@ -39,28 +38,17 @@ public class ScoreScript : MonoBehaviour
         // Проверяем, находится ли игрок ниже платформы
         if (isGameRunning && Player.transform.position.y < Platform.transform.position.y)
         {
-            StopScore(); // Останавливаем счет
+            StopScore();
         }
     }
 
     private System.Collections.IEnumerator IncreaseScoreOverTime()
     {
-        while (isGameRunning) // Проверяем, работает ли игра
+        while (isGameRunning)
         {
-            yield return new WaitForSeconds(1f); // Ждем 1 секунду
-            score += 1;                          // Увеличиваем счет
-            UpdateScoreText();                   // Обновляем текст
-
-            // Проверяем, стал ли текущий счет новым рекордом
-            if (score > bestScore)
-            {
-                bestScore = score;
-                UpdateBestScoreText();
-
-                // Сохраняем новый лучший результат в PlayerPrefs
-                PlayerPrefs.SetInt("BestScore", bestScore);
-                PlayerPrefs.Save();
-            }
+            yield return new WaitForSeconds(1f);
+            score += 1;
+            UpdateScoreText();
         }
     }
 
@@ -76,32 +64,51 @@ public class ScoreScript : MonoBehaviour
     {
         if (bestScoreText != null)
         {
-            bestScoreText.text = "Best Score: " + bestScore.ToString();
+            bestScoreText.text = "Best Score: " + (bestScore > 0 ? bestScore.ToString() : "N/A");
         }
     }
 
-    public void StopScore()
+    private void StopScore()
     {
-        isGameRunning = false; // Останавливаем обновление счета
+        isGameRunning = false;
         if (scoreCoroutine != null)
         {
-            StopCoroutine(scoreCoroutine); // Останавливаем корутину
-            scoreCoroutine = null;         // Убираем ссылку для безопасности
+            StopCoroutine(scoreCoroutine);
+            scoreCoroutine = null;
         }
 
         Debug.Log("Счет остановлен.");
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Finish"))
+        {
+            StopScore();
+
+            // Проверяем, является ли текущий счет новым рекордом
+            if (score < bestScore || bestScore == 0)
+            {
+                bestScore = score;
+                UpdateBestScoreText();
+
+                // Сохраняем новый лучший результат
+                PlayerPrefs.SetInt("BestScore", bestScore);
+                PlayerPrefs.Save();
+
+                Debug.Log("Новый рекорд установлен: " + bestScore);
+            }
+        }
+    }
+
     public void ResetScore()
     {
-        // Сбрасываем текущий счет
         score = 0;
         UpdateScoreText();
     }
 
     public void ResetBestScore()
     {
-        // Сбрасываем лучший результат
         bestScore = 0;
         PlayerPrefs.DeleteKey("BestScore");
         UpdateBestScoreText();
